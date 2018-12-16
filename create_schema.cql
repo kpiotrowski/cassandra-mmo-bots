@@ -10,9 +10,8 @@ CREATE TABLE Bots (
   PosX int,
   PosY int,
   State varchar,
-  PRIMARY KEY(Id);
+  PRIMARY KEY(Id)
 );
-CREATE INDEX BotPositionIndex ON Bots (PosX, PosY);
 
 CREATE TABLE Resources (
   Id varchar,
@@ -21,7 +20,6 @@ CREATE TABLE Resources (
   GoldLeft int,
   PRIMARY KEY(Id)
 );
-CREATE INDEX ResourcePositionIndex ON Resources (PosX, PosY);
 
 CREATE TABLE Cities (
   Id varchar,
@@ -31,4 +29,3 @@ CREATE TABLE Cities (
   Gold int,
   PRIMARY KEY(Id)
 );
-CREATE INDEX CityPositionIndex ON Cities (PosX, PosY);
