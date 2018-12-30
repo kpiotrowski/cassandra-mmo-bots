@@ -3,29 +3,24 @@ CREATE KEYSPACE IF NOT EXISTS MmoBots
 
 USE MmoBots;
 
-CREATE TABLE Bots (
-  Id varchar,
-  CollectedGold int,
-  BackpackSpace int,
+CREATE TABLE Places (
+  Id varchar PRIMARY KEY,
   PosX int,
   PosY int,
-  State varchar,
-  PRIMARY KEY(Id)
+  Type varchar,
+  Gold int
 );
 
-CREATE TABLE Resources (
-  Id varchar,
-  PosX int,
-  PosY int,
-  GoldLeft int,
-  PRIMARY KEY(Id)
+CREATE TABLE Logs (
+  BotId varchar,
+  Start timestamp,
+  End timestamp,
+  Place varchar,
+
+  PRIMARY KEY (BotId, Start, End)
 );
 
-CREATE TABLE Cities (
-  Id varchar,
-  Name varchar,
-  PosX int,
-  PosY int,
-  Gold int,
-  PRIMARY KEY(Id)
+CREATE TABLE Requests (
+  BotId varchar PRIMARY KEY,
+  Requests counter
 );
