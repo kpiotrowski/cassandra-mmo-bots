@@ -1,11 +1,10 @@
-package mmobots.models;
+package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Column;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 @Table(keyspace="mmobots", name="requests",
         readConsistency = "ONE",

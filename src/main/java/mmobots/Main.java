@@ -3,12 +3,14 @@ package mmobots;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import config.PropertiesGetter;
-import mmobots.models.Log;
-import mmobots.models.Request;
+import mmobots.mapping.Log;
+import mmobots.mapping.Place;
+import mmobots.mapping.Request;
 import org.apache.log4j.BasicConfigurator;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 public class Main {
 
@@ -17,11 +19,9 @@ public class Main {
         PropertiesGetter props = new PropertiesGetter();
         String[] nodes = props.getNodesList();
 
-        Cluster cluster = null;
-        try{
-            cluster = Cluster.builder()
-                    .addContactPoints(nodes)
-                    .build();
+        try (Cluster cluster = Cluster.builder()
+                .addContactPoints(nodes)
+                .build()) {
             Session session = cluster.connect();
 
             Request r = new Request("B1", session);
@@ -32,8 +32,8 @@ public class Main {
 
             System.out.println("Hello Bots" + r.getRequests());
 
-        } finally {
-            if (cluster != null) cluster.close();                                          // (5)
+            List<Place> places = Place.GetAllPlaces(session);
+            places.forEach(v -> System.out.println(v.getId()));
         }
     }
 }

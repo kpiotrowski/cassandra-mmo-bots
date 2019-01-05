@@ -1,4 +1,4 @@
-package mmobots.models;
+package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
