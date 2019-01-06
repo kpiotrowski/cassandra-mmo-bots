@@ -3,7 +3,9 @@ CREATE KEYSPACE IF NOT EXISTS MmoBots
 
 USE MmoBots;
 
-CREATE TABLE Places (
+CONSISTENCY ONE;
+
+CREATE TABLE IF NOT EXISTS Places (
   Id varchar PRIMARY KEY,
   PosX int,
   PosY int,
@@ -14,7 +16,7 @@ CREATE TABLE Places (
   Bots set<text>
 );
 
-CREATE TABLE Logs (
+CREATE TABLE IF NOT EXISTS Logs (
   BotId varchar,
   Start timestamp,
   End timestamp,
@@ -23,7 +25,12 @@ CREATE TABLE Logs (
   PRIMARY KEY (BotId, Start, End)
 );
 
-CREATE TABLE Requests (
+CREATE TABLE IF NOT EXISTS Requests (
   BotId varchar PRIMARY KEY,
   Requests counter
+);
+
+CREATE TABLE IF NOT EXISTS Partitions (
+  Time timestamp PRIMARY KEY,
+  Type varchar
 );

@@ -1,0 +1,110 @@
+version: '2'
+services:
+  router:
+    container_name: router
+    image: router
+    build: ./router
+    networks:
+      first-seed:
+        ipv4_address: 10.0.0.2
+      second-seed:
+        ipv4_address: 10.10.10.2
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    volumes:
+      - ../scripts:/project
+    
+  
+  seed1:
+    cap_add:
+      - NET_ADMIN
+    container_name: seed1
+    image: cass
+    build: ./cassandra_node
+    # ports:
+    #   - "9042:9042"   # Native transport
+    #   - "7199:7199"   # JMX
+    #   - "9160:9160"   # Thrift clients
+    environment:
+      - MAINNODE=1
+      - ROUTER=10.0.0.2
+    networks:
+      first-seed:
+        ipv4_address: 10.0.0.3
+    restart: always
+    volumes:
+      - ../scripts:/project
+    depends_on:
+      - router
+      
+  node1:
+    cap_add:
+      - NET_ADMIN
+    container_name: node1
+    image: cass
+    environment:
+      - ROUTER=10.0.0.2
+    networks:
+      - first-seed
+    restart: always
+    depends_on:
+      - seed1
+  
+  seed2:
+    cap_add:
+      - NET_ADMIN
+    container_name: seed2
+    image: cass
+    environment:
+      - ROUTER=10.10.10.2
+    networks:
+      second-seed:
+        ipv4_address: 10.10.10.3
+    restart: always
+    depends_on:
+      - router
+
+  node1:
+    cap_add:
+      - NET_ADMIN
+    container_name: node1
+    image: cass
+    environment:
+      - ROUTER=10.0.0.2
+    networks:
+      - first-seed
+    restart: always
+    depends_on:
+      - seed1
+  
+  node2:
+    cap_add:
+      - NET_ADMIN
+    container_name: node2
+    image: cass
+    environment:
+      - ROUTER=10.10.10.2
+    networks:
+      - second-seed
+    restart: always
+    depends_on:
+      - seed2
+  
+      
+networks:
+  default:
+      external:
+        name: host
+  first-seed:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/24
+  second-seed:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.10.0/24
