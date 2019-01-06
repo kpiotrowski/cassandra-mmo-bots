@@ -10,10 +10,16 @@ CREATE TABLE IF NOT EXISTS Places (
   PosX int,
   PosY int,
   Type varchar,
-  Gold int,
+  Gold int
+);
 
-  Locks list<text>,
-  Bots set<text>
+CREATE TABLE IF NOT EXISTS Locks (
+    BotId varchar,
+    Place varchar,
+    Time timestamp,
+    Type varchar,
+
+    PRIMARY KEY (BotId, Place, Time)
 );
 
 CREATE TABLE IF NOT EXISTS Logs (
@@ -21,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Logs (
   Start timestamp,
   End timestamp,
   Place varchar,
+  Gold int,
 
   PRIMARY KEY (BotId, Start, End)
 );

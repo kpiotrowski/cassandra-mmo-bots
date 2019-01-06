@@ -118,3 +118,12 @@ for key, value in logs.items():
 print(f"Total collecting time: {total_time}")
 print(f"Real collecting time: {time}")
 print(f"Total number of collisions: {collisions}")
+
+
+10 11 12 13 14
+
+_  _  _
+         _  _
+
+600
+500

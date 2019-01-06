@@ -4,10 +4,7 @@ import com.datastax.driver.core.Session;
 import mmobots.mapping.Log;
 import mmobots.mapping.Place;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class Bot implements Runnable{
 
@@ -22,6 +19,8 @@ public class Bot implements Runnable{
 
     private Session session;
     private Date timeLimit;
+    private Set<Place> cities;
+    private Set<Place> resources;
 
     public Bot(int mapSize, Date timeLimit, int backpack, int collectingSpeed, int travelSpeed, Session session){
         Random rand = new Random();
@@ -35,6 +34,15 @@ public class Bot implements Runnable{
         this.backpackLimit = backpack;
         this.travelSpeed = travelSpeed;
         this.collectingSpeed = collectingSpeed;
+
+        this.cities = new HashSet<>();
+        this.resources = new HashSet<>();
+
+        List<Place> places = Place.GetAllPlaces(session);
+        for (Place p: places) {
+            if (p.getType().equals(Place.TYPE_CITY)) this.cities.add(p);
+            else this.resources.add(p);
+        }
     }
 
     @Override
@@ -43,6 +51,8 @@ public class Bot implements Runnable{
         try {
             while (timeLimit.compareTo(new Date()) > 0) {
                 if (this.gold < this.backpackLimit) {
+
+
                     this.gold += 20;
                     Thread.sleep(1000);
                 } else deliverGold();
@@ -63,14 +73,16 @@ public class Bot implements Runnable{
         return false;
     }
 
+    /*
+        Bot travels to city and sleep. It do not insert log into logs table!
+     */
     private void deliverGold() throws InterruptedException {
         if (this.gold <= 0) return;
 
-        List<Place> cities = Place.GetAllCities(this.session);
         Double closestDistance = null;
         Place closestCity = null;
 
-        for (Place c : cities) {
+        for (Place c : this.cities) {
             double distance = calculateDistance(c);
             if (closestDistance == null || closestDistance > distance) {
                 closestCity = c;
@@ -81,9 +93,7 @@ public class Bot implements Runnable{
 
         System.out.println(String.format("Bot %s travelling to city %s: %d;%d", this.botID, closestCity.getId(), closestCity.getPosX(), closestCity.getPosY()));
         Thread.sleep((long)(closestDistance/this.travelSpeed*1000));
-
         System.out.println(String.format("Bot %s delivering %d gold to City %s", this.botID, this.gold, closestCity.getId()));
-        closestCity.updateGold(this.gold, session);
         this.gold = 0;
         this.posX = closestCity.getPosX();
         this.posY = closestCity.getPosY();
@@ -96,9 +106,8 @@ public class Bot implements Runnable{
         return Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
     }
 
-
-    private void createLog(String placeID, Date start, Date end) {
-        Log l = new Log(this.botID, start, end, placeID);
+    private void createLog(String placeID, Date start, Date end, int collectedGold) {
+        Log l = new Log(this.botID, start, end, placeID, collectedGold);
         l.save(this.session);
     }
 

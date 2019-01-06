@@ -38,12 +38,8 @@ public class Request {
         return requests;
     }
 
-    public void setRequests(Long requests) {
-        this.requests = requests;
-    }
-
-    public void increment(Session session){
-        this.requests ++;
-        session.execute("UPDATE mmobots.requests SET requests = requests + 1 WHERE botid = '"+this.botID+"'").wasApplied();
+    public void addValue(int value, Session session){
+        this.requests += value;
+        session.execute(String.format("UPDATE mmobots.requests SET requests = requests + %d WHERE botid = '%s'", value, this.botID)).wasApplied();
     }
 }
