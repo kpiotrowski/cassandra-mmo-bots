@@ -3,6 +3,7 @@ package config;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -45,4 +46,33 @@ public class PropertiesGetter {
         String nodes = this.prop.getProperty("nodes");
         return nodes.split(",");
     }
+
+    public int getBotsNumber() {
+        return Integer.parseInt(this.prop.getProperty("botsNumber"));
+    }
+
+    public int getMapSize() {
+        return Integer.parseInt(this.prop.getProperty("mapSize"));
+    }
+
+    public Date getTimeLimit() {
+        String time = this.prop.getProperty("collectingTime");
+        int seconds = Integer.parseInt(time);
+        Date date = new Date();
+        date.setTime(date.getTime() + seconds*1000);
+        return date;
+    }
+
+    public int getBackpackLimit() {
+        return Integer.parseInt(this.prop.getProperty("backpackLimit"));
+    }
+
+    public int getCollectingSpeed() {
+        return Integer.parseInt(this.prop.getProperty("collectingSpeed"));
+    }
+
+    public int getTravelSpeed() {
+        return Integer.parseInt(this.prop.getProperty("travelSpeed"));
+    }
+
 }

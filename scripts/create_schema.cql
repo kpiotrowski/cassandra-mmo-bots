@@ -8,7 +8,10 @@ CREATE TABLE Places (
   PosX int,
   PosY int,
   Type varchar,
-  Gold int
+  Gold int,
+
+  Locks list<text>,
+  Bots set<text>
 );
 
 CREATE TABLE Logs (
