@@ -72,4 +72,8 @@ public class Lock {
     public String getType() {
         return type;
     }
+
+    public int getTypeInt(){
+        return this.type.equals(Lock.TYPE_LOCK) ? 1 : -1;
+    }
 }

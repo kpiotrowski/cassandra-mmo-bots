@@ -1,10 +1,13 @@
 package mmobots.bots;
 
 import com.datastax.driver.core.Session;
+import mmobots.mapping.Lock;
 import mmobots.mapping.Log;
 import mmobots.mapping.Place;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Bot implements Runnable{
 
@@ -68,9 +71,46 @@ public class Bot implements Runnable{
         return null;
     }
 
-    private Boolean lockPlace(Place place) {
-        // TODO
-        return false;
+    private void lockPlace(Place place) {
+        Lock l = new Lock(this.botID, new Date(), place.getId(), Lock.TYPE_LOCK);
+        l.save(this.session);
+    }
+
+    /*
+        Returns 0 if place is not locked
+        Returns 1 if place is locked by this bot
+        Returns 2 if place if locked by someone else
+     */
+    private int checkPlaceLocked(Place place, List<Lock> allLocks) {
+
+        Map<String, List<Lock>> placeLocks = allLocks
+                .stream()
+                .filter(l -> l.getPlace().equals(place.getId()))
+                .collect(
+                        Collectors.groupingBy(Lock::getBotID)
+                );
+
+        boolean lockedByThisBot = placeLocks.get(this.botID) != null && placeLocks.get(this.botID).stream().mapToInt(Lock::getTypeInt).sum() > 0;
+
+        for (Map.Entry<String, List<Lock>> entry : placeLocks.entrySet()) {
+            int lockSummary = entry.getValue().stream().mapToInt(Lock::getTypeInt).sum();
+            if (lockSummary <= 0) continue;
+
+            if (!entry.getKey().equals(this.botID)) {
+                if (!lockedByThisBot) return 2;
+
+                Lock maxLock = Collections.max(entry.getValue(), Comparator.comparing(l -> l.getTime().getTime()));
+                Lock maxBotLock = Collections.max(placeLocks.get(this.botID), Comparator.comparing(l -> l.getTime().getTime()));
+
+                if (maxLock.getTime().getTime() < maxBotLock.getTime().getTime()) return 2;
+            }
+        }
+        return lockedByThisBot ? 1 : 0;
+    }
+
+    private void releasePlace(Place place){
+        Lock l = new Lock(this.botID, new Date(), place.getId(), Lock.TYPE_RELEASE);
+        l.save(this.session);
     }
 
     /*
