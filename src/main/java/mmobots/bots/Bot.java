@@ -139,6 +139,28 @@ public class Bot implements Runnable{
         this.posY = closestCity.getPosY();
     }
 
+    private void collectGold(Place p) throws InterruptedException {
+        System.out.println(String.format("Bot %s travelling to resource %s: %d;%d", this.botID, p.getId(), p.getPosX(), p.getPosY()));
+        double distance = calculateDistance(p);
+        Thread.sleep((long)(distance/this.travelSpeed*1000));
+        this.posX = p.getPosX();
+        this.posY = p.getPosY();
+
+        int goldToCollect = p.getGold();
+        if (this.gold + goldToCollect > this.backpackLimit) goldToCollect = this.backpackLimit - this.gold;
+
+        int collectingTime = goldToCollect/this.collectingSpeed;
+        Date start = new Date();
+        System.out.println(String.format("Bot %s collecting %d gold from resource %s: %d;%d", this.botID, goldToCollect, p.getId(), p.getPosX(), p.getPosY()));
+        Thread.sleep(collectingTime*1000);
+        Date end = new Date();
+        end.setTime(start.getTime() + collectingTime*1000);
+        p.setGold(p.getGold() - goldToCollect);
+
+        createLog(p.getId(), start, end, goldToCollect);
+        releasePlace(p);
+    }
+
     private double calculateDistance(Place p) {
         double dx = Math.abs(this.posX - p.getPosX());
         double dy = Math.abs(this.posY - p.getPosY());
