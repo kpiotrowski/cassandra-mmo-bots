@@ -2,9 +2,16 @@ package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
-import com.datastax.driver.mapping.annotations.Column;
-import com.datastax.driver.mapping.annotations.PartitionKey;
-import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.driver.mapping.Result;
+import com.datastax.driver.mapping.annotations.*;
+import mmobots.bots.Bot;
+
+
+@Accessor
+interface RequestAccessor {
+    @Query("UPDATE mmobots.requests SET requests = requests + ? WHERE botid = ?")
+    void update(Long value, String botId);
+}
 
 @Table(keyspace="mmobots", name="requests",
         readConsistency = "ONE",
@@ -19,15 +26,12 @@ public class Request {
 
     public Request(){}
 
-    public Request(String botID, Session session) {
+    public Request(String botID, MappingManager manager) {
         this.botID = botID;
 
-        MappingManager manager = new MappingManager(session);
-
         Request r = manager.mapper(Request.class).get(botID);
-        if (r != null) {
-            this.requests = r.getRequests();
-        } else this.requests = 0L;
+        if (r != null) this.requests = r.getRequests();
+        if (this.requests == null) this.requests = 0L;
     }
 
     public String getBotID() {
@@ -38,8 +42,12 @@ public class Request {
         return requests;
     }
 
-    public void addValue(int value, Session session){
+    public void addValue(int value){
         this.requests += value;
-        session.execute(String.format("UPDATE mmobots.requests SET requests = requests + %d WHERE botid = '%s'", value, this.botID)).wasApplied();
+    }
+
+    public void UpdateCounter(Long value, Bot bot, MappingManager manager){
+        RequestAccessor requestAccessor = manager.createAccessor(RequestAccessor.class);
+        requestAccessor.update(value,bot.getBotID());
     }
 }

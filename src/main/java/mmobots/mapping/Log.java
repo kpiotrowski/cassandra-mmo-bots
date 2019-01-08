@@ -19,15 +19,13 @@ interface LogAccessor {
         writeConsistency = "ONE")
 public class Log {
 
-    @PartitionKey(0)
+    @PartitionKey
     @Column(name = "botid")
     private String botID;
 
-    @PartitionKey(1)
     @Column(name = "start")
     private Date start;
 
-    @PartitionKey(2)
     @Column(name = "end")
     private Date end;
 
@@ -47,13 +45,13 @@ public class Log {
         this.gold = gold;
     }
 
-    public void save(Session session) {
-        MappingManager manager = new MappingManager(session);
+    public void save(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         manager.mapper(Log.class).save(this);
     }
 
-    public static List<Log> GetAllLogs(Session session) {
-        MappingManager manager = new MappingManager(session);
+    public static List<Log> GetAllLogs(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
         return logAccessor.getAll().all();
     }

@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Locks (
     Time timestamp,
     Type varchar,
 
-    PRIMARY KEY (BotId, Place, Time)
+    PRIMARY KEY ((Place), BotId, Time)
 );
 
 CREATE TABLE IF NOT EXISTS Logs (
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS Logs (
   Place varchar,
   Gold int,
 
-  PRIMARY KEY (BotId, Start, End)
+  PRIMARY KEY ((BotId), Start, End)
 );
 
 CREATE TABLE IF NOT EXISTS Requests (
