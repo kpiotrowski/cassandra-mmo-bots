@@ -9,7 +9,7 @@ import threading
 nodesCount = 4
 seedsAdresses = ["10.0.0.3", "10.10.10.3"]
 partitionWaitSec = 60
-partitionTime = 45
+partitionTime = 30
 
 
 
@@ -33,7 +33,7 @@ class ConfigFile:
     collectingTime=180
     collectingTimeName = "collectingTime"
 #Size of the bot backpack
-    backpackLimit=10
+    backpackLimit=5
     backpackLimitName = "backpackLimit"
 #How much gold bot collects every second
     collectingSpeed=10
@@ -61,7 +61,7 @@ class ConfigFile:
         file.close()
         return fileName
 
-os.system("mvn compile package")
+os.system("mvn compile")
 
 if os.path.exists(testDirectory):
     shutil.rmtree(testDirectory)
@@ -92,10 +92,10 @@ def createAndRunTest(configFile, dir):
         splits = seedName.split('resources/', 1);
         seedsFiles.append(splits[1])
     seedsCountPerNode = nodesCount//len(seedsFiles)
+    os.system("mvn package")
     processes = []
     for i in range(2):
         os.system("./scripts/cassandra_restart.sh")
-        time.sleep(0.5)
         for node in range(nodesCount):
             if node == (nodesCount-1):
                 seed = seedsFiles[-1]
@@ -105,7 +105,7 @@ def createAndRunTest(configFile, dir):
             run = "java -cp " +jarLocation + " " + mainClass + " " + seed + " > /dev/null 2>/tmp/node"+str(node+1)
             p =subprocess.Popen(run, shell=True)
             processes.append(p)
-        if i == 0:
+        if i == 1:
             t = threading.Thread(name="partition",target=partition)
             t.start()
             t.join()

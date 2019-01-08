@@ -5,11 +5,13 @@ from cassandra.cqlengine import connection
 from cassandra.cqlengine.models import Model
 
 
+
 class Logs(Model):
     botid = columns.Text(primary_key=True)
     start = columns.DateTime(primary_key=True)
     end = columns.DateTime(primary_key=True)
     place = columns.Text()
+    gold = columns.Integer()
 
 
 class Requests(Model):
@@ -17,17 +19,21 @@ class Requests(Model):
     requests = columns.BigInt()
 
 
+class Partitions(Model):
+    time = columns.DateTime(primary_key=True)
+    type = columns.Text
+
 connection.setup(['10.0.0.3'], "mmobots")
 
 # sync_table(Logs)
 # sync_table(RequestsCount)
 
-print(f"Total log items: {Logs.objects.count()}")
-print(f"Total request items:{Requests.objects.count()}")
+print(f"Total log items: {Logs.objects.all().limit(0).count()}")
+print(f"Total request items:{Requests.objects.all().limit(0).count()}")
 
 # ************************************** REQUESTS ***************************************** #
 requests = {"summary": 0}
-for instance in Requests.objects():
+for instance in Requests.objects().all().limit(0):
     requests[instance.botid] = int(instance.requests)
     requests["summary"] += requests[instance.botid]
 
@@ -99,9 +105,8 @@ def calculate_place_logs(place_name, bot_logs):
 
     return place_tt, place_t, place_c
 
-
 logs = {}
-for instance in Logs.objects():
+for instance in Logs.objects().all().limit(0):
     if instance.place not in logs:
         logs[instance.place] = {}
     if instance.botid not in logs[instance.place]:
@@ -118,3 +123,21 @@ for key, value in logs.items():
 print(f"Total collecting time: {total_time}")
 print(f"Real collecting time: {time}")
 print(f"Total number of collisions: {collisions}")
+
+# *************************************** RESULTS ******************************************** #
+
+logsT= []
+for instance in Logs.objects().all().limit(0):
+    logsT.append({"start": instance.start.timestamp(), "end": instance.end.timestamp(), "gold": str(instance.gold)})
+
+logstTSorted = sorted(logsT, key=lambda k: k['start'])
+
+partS = []
+for instance in Partitions.objects().all().limit(0):
+    partS.append({"time": instance.time.timestamp(), "type": instance.type})
+
+partitionsSorted = sorted(partS, key=lambda k: k['time'])
+
+results = {"logs": logstTSorted, "partitions": partitionsSorted, "total_time": total_time, "real_time": time, "collisions_count": collisions}
+
+print(results)
