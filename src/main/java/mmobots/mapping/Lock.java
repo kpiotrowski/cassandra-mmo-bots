@@ -46,16 +46,19 @@ public class Lock {
         this.type = type;
     }
 
-    public void save(MappingManager manager) {
+    public void save(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         manager.mapper(Lock.class).save(this);
     }
 
-    public static List<Lock> GetAllLocks(MappingManager manager) {
+    public static List<Lock> GetAllLocks(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
         return lockAccessor.getAll().all();
     }
 
-    public static List<Lock> GetAllLocksFromPlace(Place place, MappingManager manager) {
+    public static List<Lock> GetAllLocksFromPlace(Place place, MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
         return lockAccessor.getAllFromPlace(place.getId()).all();
     }
@@ -76,7 +79,7 @@ public class Lock {
         return type;
     }
 
-    public int getTypeInt(){
+    public int typeValue(){
         return this.type.equals(Lock.TYPE_LOCK) ? 1 : -1;
     }
 }

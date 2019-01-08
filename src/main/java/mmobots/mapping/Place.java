@@ -37,7 +37,8 @@ public class Place {
     public static String TYPE_CITY = "CITY";
     public static String TYPE_RESOURCE = "RESOURCE";
 
-    public static List<Place> GetAllPlaces(MappingManager manager) {
+    public static List<Place> GetAllPlaces(MappingManager manager,Request requestCount) {
+        requestCount.addValue(1);
         PlaceAccessor placeAccessor = manager.createAccessor(PlaceAccessor.class);
         return placeAccessor.getAll().all();
     }

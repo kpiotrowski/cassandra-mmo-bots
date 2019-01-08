@@ -4,6 +4,7 @@ import com.datastax.driver.mapping.MappingManager;
 import mmobots.mapping.Lock;
 import mmobots.mapping.Log;
 import mmobots.mapping.Place;
+import mmobots.mapping.Request;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,9 @@ public class Bot implements Runnable{
     private Set<Place> cities;
     private Set<Place> resources;
 
+    private Request request;
+
+
     public Bot(int mapSize, Date timeLimit, int backpack, int collectingSpeed, int travelSpeed, MappingManager manager){
         Random rand = new Random();
 
@@ -41,8 +45,8 @@ public class Bot implements Runnable{
 
         this.cities = new HashSet<>();
         this.resources = new HashSet<>();
-
-        List<Place> places = Place.GetAllPlaces(manager);
+        this.request = new Request(this.botID,this.manager);
+        List<Place> places = Place.GetAllPlaces(this.manager,this.request);
         for (Place p: places) {
             if (p.getType().equals(Place.TYPE_CITY)) this.cities.add(p);
             else this.resources.add(p);
@@ -58,7 +62,10 @@ public class Bot implements Runnable{
             while (timeLimit.compareTo(new Date()) > 0) {
                 if (this.gold < this.backpackLimit) {
                     if (previousPlace == 0) rankingPlaces = rankPlaces();
-                    if (rankingPlaces.size() == 0) break; // No gold left - stop bot
+                    if (rankingPlaces.size() == 0) {
+                        System.out.println(String.format("No more gold, bot %s stop running",this.botID));
+                        break; // No gold left - bot run stop
+                    }
                     Place foundPlace = null;
                     int i;
                     for (i = previousPlace; i < rankingPlaces.size() && foundPlace == null; i++) {
@@ -89,14 +96,16 @@ public class Bot implements Runnable{
                     int remainingGold = 0;
                     switch (result){
                         case 1: // Check remaining gold in place
-                            Map<Place, Integer> remainingGoldPlaces = getPlacesRemainingGold(Log.GetAllLogs(this.manager));
+                            Map<Place, Integer> remainingGoldPlaces = getPlacesRemainingGold(Log.GetAllLogs(this.manager,this.request));
                             remainingGold = remainingGoldPlaces.getOrDefault(foundPlace,0);
                             if ( remainingGold == 0 ){
+                                System.out.println(String.format("No gold left, bot $s resign from %s place",this.botID, foundPlace.getId()));
                                 this.releasePlace(foundPlace);
                                 foundPlace = null;
                             }
                             break;
                         case 2:
+                            System.out.println(String.format("Bot $s resign from %s place",this.botID, foundPlace.getId()));
                             this.releasePlace(foundPlace);
                             foundPlace = null;
                             break;
@@ -110,19 +119,21 @@ public class Bot implements Runnable{
                 } else deliverGold();
             }
             deliverGold();
+            this.request.UpdateCounter(this.request.getRequests(),this,this.manager);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     private List<Place> rankPlaces() {
-        List<Log> allLogs = Log.GetAllLogs(this.manager);
+        List<Log> allLogs = Log.GetAllLogs(this.manager,this.request);
         Map<Place, Integer> placesRemainingGold = getPlacesRemainingGold(allLogs);
         List<PlaceValue> placeValueList = new LinkedList<>();
         for(Map.Entry<Place, Integer> entry : placesRemainingGold.entrySet()) {
             Place place = entry.getKey();
             double distance = calculateDistance(place);
-            double placeValue = (double) (entry.getValue() % ((this.backpackLimit + 1) - this.gold)) / (distance/this.travelSpeed);
+            double placeValue = (double) Math.min(entry.getValue(),this.backpackLimit-this.gold) / (distance/this.travelSpeed);
             placeValueList.add(new PlaceValue(placeValue,place));
         }
         Collections.sort(placeValueList);
@@ -152,7 +163,7 @@ public class Bot implements Runnable{
 
     private void lockPlace(Place place) {
         Lock l = new Lock(this.botID, new Date(), place.getId(), Lock.TYPE_LOCK);
-        l.save(this.manager);
+        l.save(this.manager,this.request);
     }
 
     /*
@@ -161,7 +172,7 @@ public class Bot implements Runnable{
         Returns 2 if place is locked by someone else
      */
     private int checkPlaceLocked(Place place) {
-        List<Lock> allLocks = Lock.GetAllLocksFromPlace(place,this.manager);
+        List<Lock> allLocks = Lock.GetAllLocksFromPlace(place,this.manager,this.request);
         Map<String, List<Lock>> placeLocks = allLocks
                 .stream()
                 .filter(l -> l.getPlace().equals(place.getId()))
@@ -169,10 +180,10 @@ public class Bot implements Runnable{
                         Collectors.groupingBy(Lock::getBotID)
                 );
 
-        boolean lockedByThisBot = placeLocks.get(this.botID) != null && placeLocks.get(this.botID).stream().mapToInt(Lock::getTypeInt).sum() > 0;
+        boolean lockedByThisBot = placeLocks.get(this.botID) != null && placeLocks.get(this.botID).stream().mapToInt(Lock::typeValue).sum() > 0;
 
         for (Map.Entry<String, List<Lock>> entry : placeLocks.entrySet()) {
-            int lockSummary = entry.getValue().stream().mapToInt(Lock::getTypeInt).sum();
+            int lockSummary = entry.getValue().stream().mapToInt(Lock::typeValue).sum();
             if (lockSummary <= 0) continue;
 
             if (!entry.getKey().equals(this.botID)) {
@@ -189,7 +200,7 @@ public class Bot implements Runnable{
 
     private void releasePlace(Place place){
         Lock l = new Lock(this.botID, new Date(), place.getId(), Lock.TYPE_RELEASE);
-        l.save(this.manager);
+        l.save(this.manager, this.request);
     }
 
     /*
@@ -225,16 +236,14 @@ public class Bot implements Runnable{
         this.posX = p.getPosX();
         this.posY = p.getPosY();
 
-        int goldToCollect = remainingGold % (this.backpackLimit - this.gold + 1);
-
+        int goldToCollect = Math.min(remainingGold,this.backpackLimit - this.gold);
         int collectingTime = goldToCollect/this.collectingSpeed;
         Date start = new Date();
         System.out.println(String.format("Bot %s collecting %d gold from resource %s: %d;%d", this.botID, goldToCollect, p.getId(), p.getPosX(), p.getPosY()));
         Thread.sleep(collectingTime*1000);
         Date end = new Date();
         end.setTime(start.getTime() + collectingTime*1000);
-        p.setGold(p.getGold() - goldToCollect);
-
+        this.gold += goldToCollect;
         createLog(p.getId(), start, end, goldToCollect);
         releasePlace(p);
     }
@@ -248,7 +257,7 @@ public class Bot implements Runnable{
 
     private void createLog(String placeID, Date start, Date end, int collectedGold) {
         Log l = new Log(this.botID, start, end, placeID, collectedGold);
-        l.save(this.manager);
+        l.save(this.manager, this.request);
     }
 
     public String getBotID() {

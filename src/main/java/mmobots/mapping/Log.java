@@ -45,11 +45,13 @@ public class Log {
         this.gold = gold;
     }
 
-    public void save(MappingManager manager) {
+    public void save(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         manager.mapper(Log.class).save(this);
     }
 
-    public static List<Log> GetAllLogs(MappingManager manager) {
+    public static List<Log> GetAllLogs(MappingManager manager, Request requestCount) {
+        requestCount.addValue(1);
         LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
         return logAccessor.getAll().all();
     }
