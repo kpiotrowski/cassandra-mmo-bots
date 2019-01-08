@@ -12,22 +12,22 @@ import java.util.List;
 interface LockAccessor {
     @Query("SELECT * FROM mmobots.locks")
     Result<Lock> getAll();
+
+    @Query("SELECT * FROM mmobots.locks WHERE place = ?")
+    Result<Lock> getAllFromPlace(String id);
 }
 
 @Table(keyspace="mmobots", name="locks",
         readConsistency = "ONE",
         writeConsistency = "ONE")
 public class Lock {
-
-    @PartitionKey(0)
     @Column(name = "botid")
     private String botID;
 
-    @PartitionKey(1)
+    @PartitionKey
     @Column(name = "place")
     private String place;
 
-    @PartitionKey(2)
     @Column(name = "time")
     private Date time;
 
@@ -46,15 +46,18 @@ public class Lock {
         this.type = type;
     }
 
-    public void save(Session session) {
-        MappingManager manager = new MappingManager(session);
+    public void save(MappingManager manager) {
         manager.mapper(Lock.class).save(this);
     }
 
-    public static List<Lock> GetAllLocks(Session session) {
-        MappingManager manager = new MappingManager(session);
+    public static List<Lock> GetAllLocks(MappingManager manager) {
         LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
         return lockAccessor.getAll().all();
+    }
+
+    public static List<Lock> GetAllLocksFromPlace(Place place, MappingManager manager) {
+        LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
+        return lockAccessor.getAllFromPlace(place.getId()).all();
     }
 
     public String getBotID() {
@@ -73,7 +76,7 @@ public class Lock {
         return type;
     }
 
-    public int getTypeInt(){
+    public int test(){
         return this.type.equals(Lock.TYPE_LOCK) ? 1 : -1;
     }
 }

@@ -19,10 +19,8 @@ public class Request {
 
     public Request(){}
 
-    public Request(String botID, Session session) {
+    public Request(String botID, MappingManager manager) {
         this.botID = botID;
-
-        MappingManager manager = new MappingManager(session);
 
         Request r = manager.mapper(Request.class).get(botID);
         if (r != null) {

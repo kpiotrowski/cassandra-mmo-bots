@@ -2,6 +2,7 @@ package mmobots;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.mapping.MappingManager;
 import config.PropertiesGetter;
 import mmobots.bots.Bot;
 import mmobots.mapping.Place;
@@ -25,13 +26,13 @@ public class Main {
                 .build()) {
 
             Session session = cluster.connect();
-
+            MappingManager manager = new MappingManager(session);
             Thread[] threads = new Thread[botsNumber];
             Bot[] bots = new Bot[botsNumber];
             for (int i = 0; i < botsNumber; i++) {
                 bots[i] = new Bot(
                         mapSize,props.getTimeLimit(),
-                        props.getBackpackLimit(), props.getCollectingSpeed(), props.getTravelSpeed(), session);
+                        props.getBackpackLimit(), props.getCollectingSpeed(), props.getTravelSpeed(), manager);
                 threads[i] = new Thread(bots[i]);
                 threads[i].start();
             }
