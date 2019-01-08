@@ -1,6 +1,5 @@
 package mmobots.bots;
 
-import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
 import mmobots.mapping.Lock;
 import mmobots.mapping.Log;
@@ -170,10 +169,10 @@ public class Bot implements Runnable{
                         Collectors.groupingBy(Lock::getBotID)
                 );
 
-        boolean lockedByThisBot = placeLocks.get(this.botID) != null && placeLocks.get(this.botID).stream().mapToInt(Lock::test).sum() > 0;
+        boolean lockedByThisBot = placeLocks.get(this.botID) != null && placeLocks.get(this.botID).stream().mapToInt(Lock::getTypeInt).sum() > 0;
 
         for (Map.Entry<String, List<Lock>> entry : placeLocks.entrySet()) {
-            int lockSummary = entry.getValue().stream().mapToInt(Lock::test).sum();
+            int lockSummary = entry.getValue().stream().mapToInt(Lock::getTypeInt).sum();
             if (lockSummary <= 0) continue;
 
             if (!entry.getKey().equals(this.botID)) {
