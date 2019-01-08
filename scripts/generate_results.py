@@ -67,7 +67,7 @@ def detect_collision(logs_list, logs_list_2):
             elif log_1['start'] <= log_2['start'] < log_1['end']:
                 ot += log_1['end'] - log_2['start']
 
-            pprint({"msg": "Detected collision", "time_ranges": [log_1, log_2]})
+            # pprint({"msg": "Detected collision", "time_ranges": [log_1, log_2]})
             c += 1
 
     return ot, c
@@ -90,7 +90,7 @@ def calculate_place_logs(place_name, bot_logs):
             if bot_name == bot_name_2 or bot_name_2 in checked:
                 continue
 
-            print(f"\nChecking place {place_name}, bots: {bot_name} ; {bot_name_2}")
+            # print(f"\nChecking place {place_name}, bots: {bot_name} ; {bot_name_2}")
             ot, c = detect_collision(log_list, log_list_2)
             place_t -= ot
             place_c += c

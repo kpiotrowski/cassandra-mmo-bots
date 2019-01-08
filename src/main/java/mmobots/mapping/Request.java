@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.*;
@@ -28,8 +29,20 @@ public class Request {
 
     public Request(String botID, MappingManager manager) {
         this.botID = botID;
-
-        Request r = manager.mapper(Request.class).get(botID);
+        Request r = null;
+        while (true){
+            try {
+                r = manager.mapper(Request.class).get(botID);
+            } catch (ReadTimeoutException e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+            break;
+        }
         if (r != null) this.requests = r.getRequests();
         if (this.requests == null) this.requests = 0L;
     }

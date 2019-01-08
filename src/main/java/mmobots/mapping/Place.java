@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.*;
@@ -39,8 +40,19 @@ public class Place {
 
     public static List<Place> GetAllPlaces(MappingManager manager,Request requestCount) {
         requestCount.addValue(1);
-        PlaceAccessor placeAccessor = manager.createAccessor(PlaceAccessor.class);
-        return placeAccessor.getAll().all();
+        while (true){
+            try {
+                PlaceAccessor placeAccessor = manager.createAccessor(PlaceAccessor.class);
+                return placeAccessor.getAll().all();
+            } catch (ReadTimeoutException e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+        }
     }
 
     public String getId() {

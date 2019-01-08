@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.*;
@@ -13,8 +14,8 @@ interface LockAccessor {
     @Query("SELECT * FROM mmobots.locks")
     Result<Lock> getAll();
 
-    @Query("SELECT * FROM mmobots.locks WHERE place = ?")
-    Result<Lock> getAllFromPlace(String id);
+//    @Query("SELECT * FROM mmobots.locks WHERE place = ?")
+//    Result<Lock> getAllFromPlace(String id);
 }
 
 @Table(keyspace="mmobots", name="locks",
@@ -53,15 +54,28 @@ public class Lock {
 
     public static List<Lock> GetAllLocks(MappingManager manager, Request requestCount) {
         requestCount.addValue(1);
-        LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
-        return lockAccessor.getAll().all();
+        while (true){
+            try {
+                LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
+                return lockAccessor.getAll().all();
+
+            } catch (ReadTimeoutException e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+        }
+
     }
 
-    public static List<Lock> GetAllLocksFromPlace(Place place, MappingManager manager, Request requestCount) {
-        requestCount.addValue(1);
-        LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
-        return lockAccessor.getAllFromPlace(place.getId()).all();
-    }
+//    public static List<Lock> GetAllLocksFromPlace(Place place, MappingManager manager, Request requestCount) {
+//        requestCount.addValue(1);
+//        LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
+//        return lockAccessor.getAllFromPlace(place.getId()).all();
+//    }
 
     public String getBotID() {
         return botID;

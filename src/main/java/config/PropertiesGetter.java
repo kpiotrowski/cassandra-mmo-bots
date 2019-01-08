@@ -12,10 +12,10 @@ public class PropertiesGetter {
     private Properties prop;
 
 
-    public PropertiesGetter() throws IOException {
+    public PropertiesGetter(String resource) throws IOException {
         this.prop = new Properties();
 
-        String propFileName = "config.properties";
+        String propFileName = resource;
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
 
         try {
@@ -74,5 +74,7 @@ public class PropertiesGetter {
     public int getTravelSpeed() {
         return Integer.parseInt(this.prop.getProperty("travelSpeed"));
     }
+
+    public double getWaitingTime() { return  Double.parseDouble(this.prop.getProperty("waitingTime")); }
 
 }

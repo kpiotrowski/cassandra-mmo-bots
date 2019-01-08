@@ -10,9 +10,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Bot implements Runnable{
-
-    private final int WAIT_SYNC_TIME = 1;
-
     private String botID;
     private int posX;
     private int posY;
@@ -29,10 +26,13 @@ public class Bot implements Runnable{
 
     private Request request;
 
+    private double waitingTime;
 
-    public Bot(int mapSize, Date timeLimit, int backpack, int collectingSpeed, int travelSpeed, MappingManager manager){
+
+    public Bot(int mapSize, Date timeLimit, int backpack, int collectingSpeed, int travelSpeed, MappingManager manager, double waitingTime){
         Random rand = new Random();
 
+        this.waitingTime = waitingTime;
         this.timeLimit = timeLimit;
         this.manager = manager;
         this.gold = 0;
@@ -77,19 +77,19 @@ public class Bot implements Runnable{
                                 foundPlace = place;
                                 break;
                             case 1: // Sync missing
-                                Thread.sleep(this.WAIT_SYNC_TIME * 1000); // Wait for sync
+                                Thread.sleep((long)this.waitingTime * 1000); // Wait for sync
                                 i--;
                                 break;
                         }
                     }
                     if (foundPlace == null) {
-                        Thread.sleep(this.WAIT_SYNC_TIME * 1000 * 5); // Wait for places to free
+                        Thread.sleep((long)this.waitingTime * 1000); // Wait for places to free
                         previousPlace = 0;
                         continue; // Continue if no place found
                     }
                     int result = 0;
                     do{
-                        Thread.sleep(this.WAIT_SYNC_TIME * 1000); // Wait for sync
+                        Thread.sleep((long)this.waitingTime * 1000); // Wait for sync
                         result = this.checkPlaceLocked(foundPlace);
                     } while (result == 0); // Partition problem
 
@@ -172,7 +172,7 @@ public class Bot implements Runnable{
         Returns 2 if place is locked by someone else
      */
     private int checkPlaceLocked(Place place) {
-        List<Lock> allLocks = Lock.GetAllLocksFromPlace(place,this.manager,this.request);
+        List<Lock> allLocks = Lock.GetAllLocks(this.manager,this.request);
         Map<String, List<Lock>> placeLocks = allLocks
                 .stream()
                 .filter(l -> l.getPlace().equals(place.getId()))

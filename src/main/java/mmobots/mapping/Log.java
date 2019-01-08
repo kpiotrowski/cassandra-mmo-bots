@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.*;
@@ -52,8 +53,19 @@ public class Log {
 
     public static List<Log> GetAllLogs(MappingManager manager, Request requestCount) {
         requestCount.addValue(1);
-        LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
-        return logAccessor.getAll().all();
+        while (true){
+            try {
+                LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
+                return logAccessor.getAll().all();
+            } catch (ReadTimeoutException e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+        }
     }
 
     public String getBotID() {
