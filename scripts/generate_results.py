@@ -17,7 +17,7 @@ class Requests(Model):
     requests = columns.BigInt()
 
 
-connection.setup(['127.0.0.1'], "mmobots")
+connection.setup(['10.0.0.3'], "mmobots")
 
 # sync_table(Logs)
 # sync_table(RequestsCount)
@@ -118,12 +118,3 @@ for key, value in logs.items():
 print(f"Total collecting time: {total_time}")
 print(f"Real collecting time: {time}")
 print(f"Total number of collisions: {collisions}")
-
-
-10 11 12 13 14
-
-_  _  _
-         _  _
-
-600
-500
