@@ -1,6 +1,6 @@
 from random import randint
 
-RESOURCE_PERCENTAGE = 10
+RESOURCE_PERCENTAGE = 15
 MAP_SIZE = 20
 
 print("USE MmoBots;")
@@ -10,7 +10,7 @@ for i in range(1, MAP_SIZE-1):
         if randint(1, 1000) > RESOURCE_PERCENTAGE*10:
             continue
 
-        gold = randint(20, 100)
+        gold = randint(50, 200)
         print(f"INSERT INTO Places (Id, PosX, PosY, Type, Gold) VALUES ('{str(i)}_{str(j)}', {i},  {j},  'RESOURCE', "
               f"{gold});")
 
