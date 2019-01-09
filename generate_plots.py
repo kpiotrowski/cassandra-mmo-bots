@@ -60,7 +60,7 @@ for file_name in test_files:
     file_name = int(file_name) if file_name>=1 else file_name
     f_normal = f"{BASE_PATH_BOT}/{file_name}/results"
     f_partit = f"{BASE_PATH_BOT}/{file_name}/results_partition"
-    bots_x.append(int(file_name))
+    bots_x.append(file_name)
 
     with open(f_normal, 'r') as f:
         data = json.load(f)
