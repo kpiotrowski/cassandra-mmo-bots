@@ -34,6 +34,7 @@ public class Request {
         while (true){
             try {
                 r = manager.mapper(Request.class).get(botID);
+                break;
             } catch (Exception e){
                 System.err.println("Timeout, trying again");
                 try {
@@ -42,7 +43,6 @@ public class Request {
                     interupt.printStackTrace();
                 }
             }
-            break;
         }
         if (r != null) this.requests = r.getRequests();
         if (this.requests == null) this.requests = 0L;
@@ -61,7 +61,19 @@ public class Request {
     }
 
     public void UpdateCounter(Long value, Bot bot, MappingManager manager){
-        RequestAccessor requestAccessor = manager.createAccessor(RequestAccessor.class);
-        requestAccessor.update(value,bot.getBotID());
+        while (true){
+            try{
+                RequestAccessor requestAccessor = manager.createAccessor(RequestAccessor.class);
+                requestAccessor.update(value,bot.getBotID());
+                break;
+            }catch (Exception e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+        }
     }
 }

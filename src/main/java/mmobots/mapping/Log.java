@@ -49,7 +49,19 @@ public class Log {
 
     public void save(MappingManager manager, Request requestCount) {
         requestCount.addValue(1);
-        manager.mapper(Log.class).save(this);
+        while (true){
+            try{
+                manager.mapper(Log.class).save(this);
+                break;
+            } catch (Exception e){
+                System.err.println("Timeout, trying again");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interupt){
+                    interupt.printStackTrace();
+                }
+            }
+        }
     }
 
     public static List<Log> GetAllLogs(MappingManager manager, Request requestCount) {
