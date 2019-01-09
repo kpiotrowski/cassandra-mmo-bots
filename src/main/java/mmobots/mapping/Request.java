@@ -34,7 +34,7 @@ public class Request {
         while (true){
             try {
                 r = manager.mapper(Request.class).get(botID);
-            } catch (ReadTimeoutException | OperationTimedOutException e){
+            } catch (Exception e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);

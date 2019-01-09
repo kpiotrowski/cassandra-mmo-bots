@@ -60,7 +60,7 @@ public class Lock {
                 LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
                 return lockAccessor.getAll().all();
 
-            } catch (ReadTimeoutException | OperationTimedOutException e){
+            } catch (Exception e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);

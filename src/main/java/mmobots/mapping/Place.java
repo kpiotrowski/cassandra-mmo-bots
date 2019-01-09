@@ -45,7 +45,7 @@ public class Place {
             try {
                 PlaceAccessor placeAccessor = manager.createAccessor(PlaceAccessor.class);
                 return placeAccessor.getAll().all();
-            } catch (ReadTimeoutException | OperationTimedOutException e){
+            } catch (Exception e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);

@@ -58,7 +58,7 @@ public class Log {
             try {
                 LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
                 return logAccessor.getAll().all();
-            } catch (ReadTimeoutException | OperationTimedOutException e){
+            } catch (Exception e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);
