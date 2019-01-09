@@ -36,7 +36,7 @@ public class Request {
                 r = manager.mapper(Request.class).get(botID);
                 break;
             } catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout get request, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){
@@ -67,7 +67,7 @@ public class Request {
                 requestAccessor.update(value,bot.getBotID());
                 break;
             }catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout update request, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){

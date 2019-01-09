@@ -54,7 +54,7 @@ public class Log {
                 manager.mapper(Log.class).save(this);
                 break;
             } catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout save log, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){
@@ -71,7 +71,7 @@ public class Log {
                 LogAccessor logAccessor = manager.createAccessor(LogAccessor.class);
                 return logAccessor.getAll().all();
             } catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout get logs, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){

@@ -55,7 +55,7 @@ public class Lock {
                 manager.mapper(Lock.class).save(this);
                 break;
             } catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout save lock, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){
@@ -73,7 +73,7 @@ public class Lock {
                 return lockAccessor.getAll().all();
 
             } catch (Exception e){
-                System.err.println("Timeout, trying again");
+                System.err.println("Timeout get lock, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){
