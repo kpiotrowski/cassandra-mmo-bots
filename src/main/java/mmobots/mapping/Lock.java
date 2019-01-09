@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.OperationTimedOutException;
 import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
@@ -59,7 +60,7 @@ public class Lock {
                 LockAccessor lockAccessor = manager.createAccessor(LockAccessor.class);
                 return lockAccessor.getAll().all();
 
-            } catch (ReadTimeoutException e){
+            } catch (ReadTimeoutException | OperationTimedOutException e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);

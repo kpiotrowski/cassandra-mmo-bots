@@ -1,6 +1,7 @@
 package mmobots.mapping;
 
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.OperationTimedOutException;
 import com.datastax.driver.core.exceptions.ReadTimeoutException;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.Result;
@@ -33,7 +34,7 @@ public class Request {
         while (true){
             try {
                 r = manager.mapper(Request.class).get(botID);
-            } catch (ReadTimeoutException e){
+            } catch (ReadTimeoutException | OperationTimedOutException e){
                 System.err.println("Timeout, trying again");
                 try {
                     Thread.sleep(100);
