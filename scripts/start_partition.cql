@@ -1,2 +1,2 @@
 USE Mmobots;
-INSERT INTO partitions (time,type) values (toTimeStamp(now()),'START');
+INSERT INTO partitions (time,Description) values (toTimeStamp(now()),'START');

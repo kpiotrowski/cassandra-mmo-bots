@@ -33,10 +33,10 @@ class ConfigFile:
     collectingTime=180
     collectingTimeName = "collectingTime"
 #Size of the bot backpack
-    backpackLimit=5
+    backpackLimit=7
     backpackLimitName = "backpackLimit"
 #How much gold bot collects every second
-    collectingSpeed=10
+    collectingSpeed=3
     collectingSpeedName = "collectingSpeed"
 #Travel speed step/sec
     travelSpeed=1
@@ -94,6 +94,9 @@ def createAndRunTest(configFile, dir):
     seedsCountPerNode = nodesCount//len(seedsFiles)
     os.system("mvn package")
     processes = []
+    resultFile = resultDirectory + dir.split('tests', 1)[1];
+    os.makedirs(resultFile)
+    resultFile += "/results"
     for i in range(2):
         os.system("./scripts/cassandra_restart.sh")
         for node in range(nodesCount):
@@ -106,6 +109,7 @@ def createAndRunTest(configFile, dir):
             p =subprocess.Popen(run, shell=True)
             processes.append(p)
         if i == 1:
+            resultFile += "_partition"
             t = threading.Thread(name="partition",target=partition)
             t.start()
             t.join()
@@ -113,8 +117,7 @@ def createAndRunTest(configFile, dir):
         for id, e in enumerate(exit_codes):
             if e != 0:
                 print("Node "+ str(id) + " exited with code " + str(e))
-        os.system("python scripts/generate_results.py")
-
+        os.system("python scripts/generate_results.py " + resultFile)
 
 def runbotTest():
     botDir = getDirectoryPath("bot",testDirectory)
@@ -124,10 +127,18 @@ def runbotTest():
         configFile.botsNumber = botCount
         createAndRunTest(configFile, configDir)
 
+def runwaitTimeTest():
+    waitTimeDir = getDirectoryPath("waitTime",testDirectory)
+    for timeSec in [0.1,0.5,2,3,5]:
+        configDir = getDirectoryPath(str(timeSec),waitTimeDir)
+        configFile = ConfigFile()
+        configFile.waitingTime = timeSec
+        createAndRunTest(configFile, configDir)
+
 
 def main():
     runbotTest()
-
+    runwaitTimeTest()
 
 
 

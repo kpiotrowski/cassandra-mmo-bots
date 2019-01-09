@@ -3,8 +3,8 @@ from pprint import pprint
 from cassandra.cqlengine import columns
 from cassandra.cqlengine import connection
 from cassandra.cqlengine.models import Model
-
-
+import json
+import sys
 
 class Logs(Model):
     botid = columns.Text(primary_key=True)
@@ -21,7 +21,7 @@ class Requests(Model):
 
 class Partitions(Model):
     time = columns.DateTime(primary_key=True)
-    type = columns.Text
+    description = columns.Text()
 
 connection.setup(['10.0.0.3'], "mmobots")
 
@@ -134,10 +134,17 @@ logstTSorted = sorted(logsT, key=lambda k: k['start'])
 
 partS = []
 for instance in Partitions.objects().all().limit(0):
-    partS.append({"time": instance.time.timestamp(), "type": instance.type})
+    partS.append({"time": instance.time.timestamp(), "type": str(instance.description)})
 
 partitionsSorted = sorted(partS, key=lambda k: k['time'])
 
-results = {"logs": logstTSorted, "partitions": partitionsSorted, "total_time": total_time, "real_time": time, "collisions_count": collisions}
+resultsJson = {"logs": logstTSorted, "partitions": partitionsSorted, "total_time": total_time, "real_time": time, "collisions_count": collisions, "requests": str(Requests.objects.all().limit(0).count()), "requests_count": str(requests['summary'])}
 
-print(results)
+fileName = "results"
+if len(sys.argv) > 1:
+    fileName = sys.argv[1]
+print(fileName)
+file = open(fileName,"w+")
+json = json.dumps(resultsJson)
+file.write(json)
+file.close()

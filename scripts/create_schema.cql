@@ -39,5 +39,5 @@ CREATE TABLE IF NOT EXISTS Requests (
 
 CREATE TABLE IF NOT EXISTS Partitions (
   Time timestamp PRIMARY KEY,
-  Type varchar
+  Description varchar
 );

@@ -133,7 +133,7 @@ public class Bot implements Runnable{
         for(Map.Entry<Place, Integer> entry : placesRemainingGold.entrySet()) {
             Place place = entry.getKey();
             double distance = calculateDistance(place);
-            double placeValue = (double) Math.min(entry.getValue(),this.backpackLimit-this.gold) / (distance/this.travelSpeed);
+            double placeValue = (double) Math.min(entry.getValue(),this.backpackLimit-this.gold) / ((double) distance/this.travelSpeed);
             placeValueList.add(new PlaceValue(placeValue,place));
         }
         Collections.sort(placeValueList);
@@ -237,12 +237,12 @@ public class Bot implements Runnable{
         this.posY = p.getPosY();
 
         int goldToCollect = Math.min(remainingGold,this.backpackLimit - this.gold);
-        int collectingTime = goldToCollect/this.collectingSpeed;
+        double collectingTime = (double) goldToCollect/this.collectingSpeed;
         Date start = new Date();
         System.out.println(String.format("Bot %s collecting %d gold from resource %s: %d;%d", this.botID, goldToCollect, p.getId(), p.getPosX(), p.getPosY()));
-        Thread.sleep(collectingTime*1000);
+        Thread.sleep((long)collectingTime*1000);
         Date end = new Date();
-        end.setTime(start.getTime() + collectingTime*1000);
+        end.setTime(start.getTime() + (long)collectingTime*1000);
         this.gold += goldToCollect;
         createLog(p.getId(), start, end, goldToCollect);
         releasePlace(p);
