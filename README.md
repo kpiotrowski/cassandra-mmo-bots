@@ -1,5 +1,5 @@
 # Cassandra-MMO-Bots
-Cassandra-MMO-Bots jest programem napisanym w Javie i wykorzystuje bazę danych Cassandra do symulacji działania sieci botów, które zbierają złoto w grze MMO. 
+Cassandra-MMO-Bots jest programem napisanym w Javie i wykorzystuje bazę danych Cassandra do symulacji działania sieci botów, które zbierają złoto w grze MMO.
 
 ##### W symulacji zostały wyróżnione trzy typu obiektów:
 - **bot** - osobny wątek, który symuluje działanie bota. Każdy bot ma zdefiniowane te same parametry dotyczące poruszania się i pozyskiwania złota:
@@ -20,3 +20,4 @@ Bot zaczyna w losowym miejscu na mapie z pustym plecakiem oraz listą miejsc, kt
 Do przeprowadzenia i zautomatyzowania testów utworzone zostały odpowiednie skrypty napisane w języku Python. Cassandra została postawiona na kontenerach dockerowych, gdzie uruchomione zostały 4 nody, w tym 2 seedy, które mogły się komunikować przez dodatkowy kontener działający jako router pomiędzy nimi. Wyłączenie interfejsu na routerze pozwalało zasymulować wystąpienie partycji nodów bazy danych. Każdy test trwał 3 minuty i testowane były wyniki dla zmiennej liczby botów oraz czasu oczekiwania, w przypadku wystąpienia i braku partycji.
 
 Poniżej zamieszczony jest wykres przedstawiający uzyskane wyniki:
+![results](fig1.png?raw=true "Wyniki przeprowadzonych testów")
