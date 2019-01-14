@@ -24,35 +24,35 @@ public class Request {
     private String botID;
 
     @Column(name = "requests")
-    private Long requests;
+    private int requests;
 
     public Request(){}
 
     public Request(String botID, MappingManager manager) {
         this.botID = botID;
-        Request r = null;
-        while (true){
-            try {
-                r = manager.mapper(Request.class).get(botID);
-                break;
-            } catch (Exception e){
-                System.err.println("Timeout get request, trying again");
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException interupt){
-                    interupt.printStackTrace();
-                }
-            }
-        }
-        if (r != null) this.requests = r.getRequests();
-        if (this.requests == null) this.requests = 0L;
+//        Request r = null;
+//        while (true){
+//            try {
+//                r = manager.mapper(Request.class).get(botID);
+//                break;
+//            } catch (Exception e){
+//                System.err.println("Timeout get request, trying again");
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException interupt){
+//                    interupt.printStackTrace();
+//                }
+//            }
+//        }
+//        if (r != null) this.requests = r.getRequests();
+        this.requests = 0;
     }
 
     public String getBotID() {
         return botID;
     }
 
-    public Long getRequests() {
+    public int getRequests() {
         return requests;
     }
 
@@ -60,14 +60,13 @@ public class Request {
         this.requests += value;
     }
 
-    public void UpdateCounter(Long value, Bot bot, MappingManager manager){
+    public void UpdateCounter(int value, Bot bot, MappingManager manager){
         while (true){
             try{
-                RequestAccessor requestAccessor = manager.createAccessor(RequestAccessor.class);
-                requestAccessor.update(value,bot.getBotID());
+                manager.mapper(Request.class).save(this);
                 break;
             }catch (Exception e){
-                System.err.println("Timeout update request, trying again");
+                System.err.println("Timeout save request, trying again");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException interupt){
