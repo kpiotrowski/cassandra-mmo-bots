@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Logs (
 
 CREATE TABLE IF NOT EXISTS Requests (
   BotId varchar PRIMARY KEY,
-  Requests counter
+  Requests int
 );
 
 CREATE TABLE IF NOT EXISTS Partitions (

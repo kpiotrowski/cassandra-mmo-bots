@@ -121,8 +121,7 @@ def createAndRunTest(configFile, dir):
 
 def runbotTest():
     botDir = getDirectoryPath("bot",testDirectory)
-    # for botCount in [5, 10, 40, 50,100]:
-    for botCount in [100]:
+    for botCount in [5, 10, 40, 50,100]:
         configDir = getDirectoryPath(str(botCount),botDir)
         configFile = ConfigFile()
         configFile.botsNumber = botCount
@@ -136,11 +135,19 @@ def runwaitTimeTest():
         configFile.waitingTime = timeSec
         createAndRunTest(configFile, configDir)
 
+def runAverageTests():
+    average = getDirectoryPath("average",testDirectory)
+    # for i in range(5):
+    configDir = getDirectoryPath(str(average),testDirectory)
+    configFile = ConfigFile()
+    configFile.waitingTime = 0.5
+    createAndRunTest(configFile, configDir)
+
 
 def main():
     runbotTest()
     runwaitTimeTest()
-
+    runAverageTests()
 
 
 
